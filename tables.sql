@@ -63,4 +63,3 @@ create table previews (
   foreign key (pid) references products,
   foreign key (reviewer) references users
 );
-English
