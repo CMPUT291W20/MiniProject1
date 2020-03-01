@@ -10,7 +10,7 @@ def connect(path):
 def drop_tables(cur):
     cur.execute("drop table if exists previews;")
     cur.execute("drop table if exists reviews;")
-    cur.execute("drop table if exists bid;")
+    cur.execute("drop table if exists bids;")
     cur.execute("drop table if exists sales;")
     cur.execute("drop table if exists products;")
     cur.execute("drop table if exists users;")
@@ -18,10 +18,10 @@ def drop_tables(cur):
 def define_tables(conn, cur):
     user_table = '''
                 create table users (
-                    email		char(20),
-                    name		char(16),
+                    email	char(20),
+                    name	char(16),
                     pwd		char(4),
-                    city		char(15),
+                    city	char(15),
                     gender	char(1),
                     primary key (email)
                     );
@@ -30,7 +30,7 @@ def define_tables(conn, cur):
     product_table = '''
                 create table products (
                     pid		char(4),
-                    descr		char(20),
+                    descr	char(20),
                     primary key (pid)
                     );
                 '''
@@ -40,9 +40,9 @@ def define_tables(conn, cur):
                     sid		char(4),
                     lister	char(20) not null,
                     pid		char(4),
-                    edate		date,
-                    descr		char(25),
-                    cond		char(10),
+                    edate	date,
+                    descr	char(25),
+                    cond	char(10),
                     rprice	int,
                     primary key (sid),
                     foreign key (lister) references users,
@@ -67,7 +67,7 @@ def define_tables(conn, cur):
                     create table reviews (
                         reviewer	char(20), 
                         reviewee	char(20), 
-                        rating	float, 
+                        rating	    float, 
                         rtext		char(20), 
                         rdate		date,
                         primary key (reviewer, reviewee),
@@ -78,10 +78,10 @@ def define_tables(conn, cur):
 
     previews_table = '''
                 create table previews (
-                    rid		int,
-                    pid		char(4),
+                    rid		    int,
+                    pid		    char(4),
                     reviewer	char(20) not null,
-                    rating	float,
+                    rating	    float,
                     rtext		char(20),
                     rdate		date,
                     primary key (rid),
