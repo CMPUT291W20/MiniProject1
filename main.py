@@ -1,12 +1,15 @@
 import os, sys
 import sqlite3
 from database import *
+from user import User
+from users import *
 
 conn = None  # Connection
 cur  = None  # Cursor
+user = None  # The logged in user
 
 def main():
-    global conn, cur
+    global conn, cur, user
     path = "./mp1.db"
     conn, cur = connect(path)
     drop_tables(cur)
@@ -18,6 +21,8 @@ def main():
         if user == -2:
             isQuit = True
         mainMenu(user)
+        user = None  # User has logged out, set user to none
+
 
 def start():
     # Prompts user to select login, register, or exit program
@@ -54,10 +59,10 @@ def login():
     #   user: if the email and password exists
     #   -1: if the user selects to go back
     global conn, cur
-    valid_login = False
+    clear_screen()
 
+    valid_login = False
     while not valid_login:
-        clear_screen()
         print("Enter email and password. Type 'back' to go back")
         email = input("Email: ")
         if (email.lower() == 'back'):
@@ -66,9 +71,10 @@ def login():
         pwd = input("Password: ")
 
         user_data = getUser(email)
+        print(user_data)
         if user_data:
             # There is data in the tuple
-            if pwd == user_data[1]:
+            if pwd == user_data[2]:
                 email = user_data[0]
                 valid_login = True
             else:
@@ -98,7 +104,6 @@ def register():
             print("Email already in use")
         else:
             valid_entry = True
-
     name = input("Name: ")
     pwd = input("Password: ")
     city = input("City: ")
@@ -111,42 +116,41 @@ def register():
         else:
             print("Entry is invalid, Please enter M or F for gender")
 
-    cur.execute("INSERT INTO users(email, name, pwd, city, gender) VALUES email=:e, name=:n, pwd=:p, city=:c, gender=:g;", 
-                {"e":email, "n":name, "p":pwd, "c":city, "g":gender})
+    cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (email, name, pwd, city, gender))
     conn.commit()
-    return user_data[0]
+    new_user = User(email, name, city, gender)
+    return new_user
+
 
 def getUser(email):
     # Takes in a string email address, and finds the users data in the database with that email
     # return: Truple of the users data: (email, name, pwd, city, gender)
     global conn, cur
-    cur.execute("SELECT * FROM users WHERE email=:e", {"e":email})
+    cur.execute("SELECT * FROM users WHERE email=?", (email,))
     user_data = cur.fetchone()
     return user_data
-
-def print_reviews(email):
-    global cur
-    # Takes in the email whom's reviews are to be printed
-
-    cur.execute("SELECT * FROM reviews WHERE email:e", {"e":email})
-    list = cur.fetchall()
-
-    if list:
-        # There are tuples in the list
-        dash = '-' * 90
-        print(dash)
-        print('{:<22s} {:<22s} {:<8s} {:<22s} {:<10s}'.format("Reviewer", "Reviewee", "Rating", "Description", "Date"))
-        print(dash)
-        for tuple in list:
-            print('{:<22s} {:<22s} {:<8f} {:<22s} {:<10s}'.format(tuple[0], tuple[1], tuple[2], tuple[3], tuple[4]))
-    else:
-        # There are no tuples in the list
-        print("This user has no reviews")
 
 
 def mainMenu(user):
     clear_screen()
-    
+    print("Welcome to MiniProject 1 Store Main Menu")
+    print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account")
+    logout = False
+    while not logout:
+        select = input("Select: ")
+        if select.lower() == "logout":
+            logout = True
+        elif select == "1":
+            pass
+        elif select == "2":
+            pass
+        elif select == "3":
+            pass
+        elif select == "4":
+            user_search()
+        else:
+            print("Invalid selection made")
+ 
 
 def clear_screen():
     if sys.platform == 'win32':
