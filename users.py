@@ -36,27 +36,30 @@ def operation_select(list):
     # Promps user to select an operation for the user list printed
     # Takes in a list of tuples of users data: (email, name, city, gender)
 
-    print("Please select an index from the list or type back to go back to search")
-    select = input("Selection: ")
-    if select.lower() == "back":
-        return
-    else:
-        print("1. Write a review  2. List all user's active sales  3. List all reviews on user")
-        valid_entry = False
-        while not valid_entry:
-            select = int(input("Selection: "))
-            email = list[select][0]  # User of the email selected
-            if select == 1:
-                valid_entry = True
-                write_review(email)
-            elif select == 2:
-                valid_entry = True
-                print_sales(email)
-            elif select == 3:
-                valid_entry = True
-                print_reviews(email)
-            else:
-                print("Invalid selection made")
+    back = False
+    while not back:
+        print("Please select an index from the list or type back to go back to search")
+        select = input("Selection: ")
+        if select.lower() == "back":
+            back = True
+        else:
+            print("1. Write a review  2. List all user's active sales  3. List all reviews on user")
+            valid_entry = False
+            while not valid_entry:
+                select = int(input("Selection: "))
+                email = list[select][0]  # User of the email selected
+                if select == 1:
+                    valid_entry = True
+                    write_review(email)
+                elif select == 2:
+                    valid_entry = True
+                    print_sales(email)
+                elif select == 3:
+                    valid_entry = True
+                    print_reviews(email)
+                else:
+                    print("Invalid selection made")
+            print_userSearch(list, None)
     return  # Return back to search for users
 
 
