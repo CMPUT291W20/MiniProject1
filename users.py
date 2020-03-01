@@ -9,7 +9,7 @@ def user_search():
         if search == "!back":
             continueSearch = False
         else:
-            list = cur.execute("SELECT name, email, city, gender FROM users WHERE email=? or name=?", (search, search,))
+            list = cur.execute("SELECT DISTINCT name, email, city, gender FROM users WHERE email LIKE '?' or name LIKE '?' ", (search, search,))
             print_userSearch(list, search)
             if list:
                 # There were users returned from the search
