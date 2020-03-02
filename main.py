@@ -2,7 +2,6 @@ import os, sys
 import sqlite3
 from database import *
 from user import User
-from users import *
 
 conn = None  # Connection
 cur  = None  # Cursor
@@ -18,9 +17,8 @@ def main():
     isQuit = False
     while not isQuit:
         user = start()
-        if user == -2:
-            isQuit = True
         mainMenu(user)
+        clear_screen()
         user = None  # User has logged out, set user to none
 
 
@@ -45,8 +43,7 @@ def start():
             if user != -1:
                 valid_entry = True
         if (select.lower() == 'exit'):
-            user = -2
-            valid_entry = True
+            close_program()
         else:
             clear_screen()
             print("Invalid entry")
@@ -134,12 +131,14 @@ def getUser(email):
 def mainMenu(user):
     clear_screen()
     print("Welcome to MiniProject 1 Store Main Menu")
-    print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account")
+    print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account  Exit: Exit Program")
     logout = False
     while not logout:
         select = input("Select: ")
         if select.lower() == "logout":
             logout = True
+        elif select.lower() == "exit":
+            close_program()
         elif select == "1":
             pass
         elif select == "2":
@@ -147,7 +146,8 @@ def mainMenu(user):
         elif select == "3":
             pass
         elif select == "4":
-            user_search()
+            pass
+            #user_search()
         else:
             print("Invalid selection made")
  
@@ -158,5 +158,10 @@ def clear_screen():
     else:
         os.system("clear")
 
+def close_program():
+    clear_screen()
+    print("Thank you for shopping with us")
+    print("Exiting Program....")
+    sys.exit()
 
 main()
