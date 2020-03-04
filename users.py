@@ -1,8 +1,13 @@
+from main import clear_screen, cur, conn
+import re
+from datetime import date
+
 def user_search():
     # Promps the user to enter a keyword for the user to search for in the name or city
     global cur
     continueSearch = True
 
+    clear_screen()
     while continueSearch:
         print("Enter in a keyword to find users by name or email or type '!back' to go back to main menu")
         search = input("Search: ")
@@ -13,7 +18,7 @@ def user_search():
             print_userSearch(list, search)
             if list:
                 # There were users returned from the search
-                operation_select(list)
+                user_select(list)
     return  # Return back to main menu
 
 
@@ -21,6 +26,7 @@ def print_userSearch(list, search):
     # Prints the results that were returned from the user search
     # Takes in a list of tuples of users data: (email, name, city, gender)
 
+    clear_screen()
     if list:
         dash = '-' * 90
         print(dash)
@@ -32,7 +38,7 @@ def print_userSearch(list, search):
         print("No results returned for your search " + search)
 
 
-def operation_select(list):
+def user_select(list):
     # Promps user to select an operation for the user list printed
     # Takes in a list of tuples of users data: (email, name, city, gender)
 
@@ -67,18 +73,41 @@ def write_review(email):
     # Promps user to enter review text and a rating (from 1 to 5)
     # Fills in the other required field of date, reviewer, reviewee
     global cur, conn
-    pass
+    clear_screen()
+    print("Currently writing a review for: " + str(email))
 
-def print_sales(email):
-    # Prints all the sales that are posted by the user
-    # Takes in the email whom's sales are to be printed
-    pass
+    valid_input = False
+    while not valid_input:
+        r_text = input("Review Text (max 20 char): ")
+        if len(r_text) <= 20:
+            valid_input = True
+        else:
+            print("Error: Max 20 characters allowed")
+    
+    valid_input =  False
+    while not valid_input:
+        r_rating = input("Rating (1 to 5): ")
+        if re.match("^[1-5]*$", r_rating):
+            if int(r_rating) <= 5:
+                valid_input =  True
+                r_rating = int(r_rating)
+            else:
+                print("Invalid Input")
+        else:
+            print("Invalid Input")
+
+    today = date.today()
+    r_date = today.strftime("%Y-%m-%d")
+    cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (user.get_email, email, r_rating, r_text, r_date))
+    conn.commit()
+
 
 def print_reviews(email):
     # Prints all the reviews that are associated with the user
     # Takes in the email whom's reviews are to be printed
     global cur
 
+    clear_screen()
     cur.execute("SELECT * FROM reviews WHERE email=?", (email,))
     list = cur.fetchall()
     if list:
@@ -92,3 +121,4 @@ def print_reviews(email):
     else:
         # There are no tuples in the list
         print("This user has no reviews")
+    input("Press Enter to go back")
