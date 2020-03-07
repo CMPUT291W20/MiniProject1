@@ -2,10 +2,12 @@ import os, sys
 import sqlite3
 from database import *
 from user import User
+from datetime import datetime
+import random, string, re
 
 conn = None  # Connection
 cur  = None  # Cursor
-user = None  # The logged in user
+user = User(None, None, None, None)  # The logged in user
 
 def main():
     global conn, cur, user
@@ -17,9 +19,9 @@ def main():
     isQuit = False
     while not isQuit:
         user = start()
-        mainMenu(user)
+        mainMenu()
         clear_screen()
-        user = None  # User has logged out, set user to none
+        user = User(None, None, None, None)  # User has logged out, set user to none
 
 
 def start():
@@ -63,16 +65,15 @@ def login():
         print("Enter email and password. Type 'back' to go back")
         email = input("Email: ")
         if (email.lower() == 'back'):
-            email = -1
+            login_user = -1
             break
         pwd = input("Password: ")
 
         user_data = getUser(email)
-        print(user_data)
         if user_data:
             # There is data in the tuple
             if pwd == user_data[2]:
-                email = user_data[0]
+                login_user = User(user_data[0], user_data[1], user_data[3], user_data[4])
                 valid_login = True
             else:
                 clear_screen()
@@ -81,7 +82,7 @@ def login():
             # There is no data in the tuple
             clear_screen()
             print("Invalid email/password")   
-    return email
+    return login_user
 
 
 def register():
@@ -122,13 +123,14 @@ def register():
 def getUser(email):
     # Takes in a string email address, and finds the users data in the database with that email
     # return: Truple of the users data: (email, name, pwd, city, gender)
-    global conn, cur
+    global cur
     cur.execute("SELECT * FROM users WHERE email=?", (email,))
     user_data = cur.fetchone()
     return user_data
 
 
-def mainMenu(user):
+def mainMenu():
+    global user
     clear_screen()
     print("Welcome to MiniProject 1 Store Main Menu")
     print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account  Exit: Exit Program")
@@ -144,13 +146,80 @@ def mainMenu(user):
         elif select == "2":
             pass
         elif select == "3":
-            pass
+            post_sale()
         elif select == "4":
             pass
             #user_search()
         else:
             print("Invalid selection made")
- 
+
+
+def post_sale():
+    global user, conn, cur
+    clear_screen()
+    print("Please enter the following information to post a sale:")
+    pid = input("Product ID (Optional, press Enter to skip): ")
+    if pid == "":
+        pid = None
+
+    edate = get_datetime()
+
+    valid_input = False
+    while not valid_input:
+        desc = input("Sale Description (Max 25 char): ")
+        if len(desc) <= 25:
+            valid_input = True
+        else:
+            print("Error: input length to long")
+
+    valid_input = False
+    while not valid_input:
+        cond = input("Condition (max 10 char): ")
+        if len(cond) <= 10:
+            valid_input = True
+        else:
+            print("Error: input length to long")
+
+    r_price = input("Reserved price (Optional, press Enter to skip): ")
+    if r_price == "":
+        r_price = None
+
+    sid = generateSID()
+    cur.execute("INSERT INTO sales VALUES (?, ?, ?, ?, ?, ?)", (sid, user.get_email(), edate, desc, cond, r_price))
+
+def get_datetime():
+    # Promps the user to enter a correct date and time format for a sales end date and time
+    now = datetime.now()
+    now_datetime = now.strftime("%Y-%m-%d %H:%M")
+
+    valid_input = False
+    while not valid_input:
+        date = input("End date in format yyyy-mm-dd ")
+        if len(date) == 10:
+            pass
+        else:
+            print("Error: Invalid format")
+    
+    time = input("End time in format HH:MM ")
+    edate = date + " " + time
+    return edate
+
+
+def generateSID():
+    # Generate a random sale id (sid) that does not exist yet
+    global cur
+    char = string.ascii_letters + "0123456789"
+
+    valid_sid =  False
+    while not valid_sid:
+        sid = ''.join(random.choice(char) for i in range(4))
+        cur.execute("SELECT sid FROM sales WHERE sid=?", (sid,))
+        data = cur.fetchall()
+        if not data:
+            # The sid is avaiable for use
+            valid_sid =  True
+    return sid
+
 
 def clear_screen():
     if sys.platform == 'win32':
