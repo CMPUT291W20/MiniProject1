@@ -1,6 +1,8 @@
 import os, sys
 import sqlite3
 from database import *
+from external_func import clear_screen, close_program
+from users import user_globals, user_search
 from user import User
 from datetime import datetime
 import random, string, re
@@ -130,7 +132,7 @@ def getUser(email):
 
 
 def mainMenu():
-    global user
+    global user, conn, cur
     clear_screen()
     print("Welcome to MiniProject 1 Store Main Menu")
     print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account  Exit: Exit Program")
@@ -148,8 +150,8 @@ def mainMenu():
         elif select == "3":
             post_sale()
         elif select == "4":
-            pass
-            #user_search()
+            user_globals(conn, cur, user)
+            user_search()
         else:
             print("Invalid selection made")
 
@@ -219,18 +221,5 @@ def generateSID():
             # The sid is avaiable for use
             valid_sid =  True
     return sid
-
-
-def clear_screen():
-    if sys.platform == 'win32':
-        os.system("cls")
-    else:
-        os.system("clear")
-
-def close_program():
-    clear_screen()
-    print("Thank you for shopping with us")
-    print("Exiting Program....")
-    sys.exit()
 
 main()
