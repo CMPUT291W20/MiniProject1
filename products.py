@@ -1,5 +1,6 @@
 import sqlite3
-from main import clear_screen, cur, conn
+from main import cur, conn
+from external_func import clear_screen
 from user import User
 from sales import active_sales
 from datetime import datetime
