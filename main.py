@@ -1,7 +1,7 @@
 import os, sys
 import sqlite3
 from external_func import clear_screen, close_program
-import Database as db
+import database as db
 from users import user_search
 from user import User
 from datetime import datetime
@@ -21,10 +21,10 @@ def main():
 
     isQuit = False
     while not isQuit:
-        user = start()
+        start()
         mainMenu()
         clear_screen()
-        user = User(None, None, None, None)  # User has logged out, set user to none
+        db.cur_user = None  # User has logged out, set user to none
 
 
 def mainMenu():

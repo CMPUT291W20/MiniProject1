@@ -1,6 +1,6 @@
-from external_func import *
+from external_func import clear_screen
 import re
-import Database as db
+import database as db
 from sales import print_sales
 from datetime import date
 
@@ -8,8 +8,8 @@ def user_search():
     # Promps the user to enter a keyword for the user to search for in the name or city
     continueSearch = True
 
+    clear_screen()
     while continueSearch:
-        clear_screen()
         print("Enter in a keyword to find users by name or email or type '!back' to go back to main menu")
         search = input("Search: ")
         if search == "!back":
@@ -66,13 +66,13 @@ def user_select(list):
             while not valid_entry:
                 select = int(input("Selection: "))
                 email = list[int(index)][0]  # User of the email selected
-                if select == 1:
+                if select == "1":
                     valid_entry = True
                     write_review(email)
-                elif select == 2:
+                elif select == "2":
                     valid_entry = True
                     print_sales(email)
-                elif select == 3:
+                elif select == "3":
                     valid_entry = True
                     print_reviews(email)
                 else:
@@ -114,7 +114,7 @@ def write_review(email):
 
         today = date.today()
         r_date = today.strftime("%Y-%m-%d")
-        db.cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (db.cur_user.get_email(), email, r_rating, r_text, r_date))
+        db.cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (email, email, r_rating, r_text, r_date))
         db.conn.commit()
 
 
@@ -132,7 +132,7 @@ def print_reviews(email):
         print('{:<22s} {:<22s} {:<7s} {:<22s} {:<10s}'.format("Reviewer", "Reviewee", "Rating", "Description", "Date"))
         print(dash)
         for i in range(len(list)):
-            print('{:<22s} {:<22s} {:.2f}    {:<22s} {:<10s}'.format(list[i][0], list[i][1], list[i][2], list[i][3], list[i][4]))
+            print('{:<22s} {:<22s} {:.2f} {:<22s} {:<10s}'.format(list[i][0], list[i][1], list[i][2], list[i][3], list[i][4]))
     else:
         # There are no tuples in the list
         print("This user has no reviews")

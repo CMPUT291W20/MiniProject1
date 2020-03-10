@@ -1,6 +1,6 @@
 import sqlite3
-from external_func import *
-import Database as db
+from external_func import clear_screen, close_program
+import database as db
 from user import User
 
 def start():

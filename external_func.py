@@ -1,5 +1,4 @@
 import os, sys
-import sqlite3
 
 def clear_screen():
     if sys.platform == 'win32':
