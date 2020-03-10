@@ -1,21 +1,11 @@
 from external_func import clear_screen
 import re
+import database as db
 from sales import print_sales
 from datetime import date
 
-cur  = None
-conn = None
-user = None
-
-def user_globals(set_conn, set_cur, set_user):
-    global cur, conn, user
-    cur = set_cur
-    conn = set_conn
-    user = set_user
-
 def user_search():
     # Promps the user to enter a keyword for the user to search for in the name or city
-    global cur
     continueSearch = True
 
     clear_screen()
@@ -26,8 +16,8 @@ def user_search():
             continueSearch = False
         else:
             like_search = "%" + search + "%"
-            cur.execute("SELECT DISTINCT email, name, city, gender FROM users WHERE email LIKE ? or name LIKE ? ", (like_search, like_search,))
-            list = cur.fetchall()
+            db.cur.execute("SELECT DISTINCT email, name, city, gender FROM users WHERE email LIKE ? or name LIKE ? ", (like_search, like_search,))
+            list = db.cur.fetchall()
             print(list)
             print_userSearch(list, search)
             if list:
@@ -76,13 +66,13 @@ def user_select(list):
             while not valid_entry:
                 select = int(input("Selection: "))
                 email = list[int(index)][0]  # User of the email selected
-                if select == 1:
+                if select == "1":
                     valid_entry = True
                     write_review(email)
-                elif select == 2:
+                elif select == "2":
                     valid_entry = True
                     print_sales(email)
-                elif select == 3:
+                elif select == "3":
                     valid_entry = True
                     print_reviews(email)
                 else:
@@ -94,10 +84,9 @@ def user_select(list):
 def write_review(email):
     # Promps user to enter review text and a rating (from 1 to 5)
     # Fills in the other required field of date, reviewer, reviewee
-    global cur, conn, user
     clear_screen()
 
-    if email == user.get_email():
+    if email == db.cur_user.get_email():
         print("You cannot write a review for yourself.")
         input("Press Enter to go back")
     else:
@@ -125,18 +114,17 @@ def write_review(email):
 
         today = date.today()
         r_date = today.strftime("%Y-%m-%d")
-        cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (user.get_email(), email, r_rating, r_text, r_date))
-        conn.commit()
+        db.cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (email, email, r_rating, r_text, r_date))
+        db.conn.commit()
 
 
 def print_reviews(email):
     # Prints all the reviews that are associated with the user
     # Takes in the email whom's reviews are to be printed
-    global cur
 
     clear_screen()
-    cur.execute("SELECT * FROM reviews WHERE reviewee=?", (email,))
-    list = cur.fetchall()
+    db.cur.execute("SELECT * FROM reviews WHERE reviewee=?", (email,))
+    list = db.cur.fetchall()
     if list:
         # There are tuples in the list
         dash = '-' * 90
@@ -144,7 +132,7 @@ def print_reviews(email):
         print('{:<22s} {:<22s} {:<7s} {:<22s} {:<10s}'.format("Reviewer", "Reviewee", "Rating", "Description", "Date"))
         print(dash)
         for i in range(len(list)):
-            print('{:<22s} {:<22s} {:.2f}     {:<22s} {:<10s}'.format(list[i][0], list[i][1], list[i][2], list[i][3], list[i][4]))
+            print('{:<22s} {:<22s} {:.2f} {:<22s} {:<10s}'.format(list[i][0], list[i][1], list[i][2], list[i][3], list[i][4]))
     else:
         # There are no tuples in the list
         print("This user has no reviews")
