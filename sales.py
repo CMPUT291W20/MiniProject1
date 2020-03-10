@@ -65,19 +65,19 @@ def active_sales(pID_choice):
                     (select s.sid s.descr, max(b.amount), datetime("s.edate") - datetime("now")
                     from sales s, bids b
                     where s.sid = b.sid
-                    and s.pid = ?
+                    and s.pid = "{pid_1}"
                     and (datetime("s.edate") - datetime("now")) > 0)
                     union
                     (select s.sid s.descr, s.rprice, datetime("s.edate") - datetime("now")
                     from sales s
                     where (datetime("s.edate") - datetime("now")) > 0
-                    and s.pid = ?
+                    and s.pid = "{pid_2}"
                     and not exists (select * from bids b, sales s 
                                     where b.sid = s.sid));
                     """
                     # 2nd query: selecting the rprice of sales if there isn't a bid for the product
-
-    db.cur.execute(sale_listing, (pID_choice, pID_choice)) # query, placeholder, placeholder 
+    sale_query = sale_listing.format(pid_1=pID_choice, pid_2=pID_choice)
+    db.cur.execute(sale_query) # query, placeholder, placeholder 
     rows = db.cur.fetchall()
     print("{:8}{:22}{:24}{:29}".format("Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
     print("{}".format("+" * 90))
