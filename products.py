@@ -1,5 +1,5 @@
 import sqlite3
-from main import cur, conn
+import database as db
 from external_func import clear_screen
 from user import User
 from sales import active_sales
@@ -8,7 +8,6 @@ from datetime import datetime
 def write_preview(pID_choice):
     # Prompts user to fill in a rating and review text for the selected product
     # Fills in other required fields such as rid, reviewer, and rdate
-    global user
     print("Writing a product review for {}:".format(pID_choice))
     
     valid_input = False
@@ -27,18 +26,18 @@ def write_preview(pID_choice):
         else:
             print("Max 20 characters allowed.")
     
-    rID = cur.execute("select count(*) from previews;") # counting the number of product reviews currently in database, and assigning that number as the rID to this upcoming review
-    reviewer = user.get_email()
+    rID = db.cur.execute("select count(*) from previews;") # counting the number of product reviews currently in database, and assigning that number as the rID to this upcoming review
+    reviewer = db.cur_user.get_email()
     rdate = datetime.now()
     
     data = (rID, pID_choice, reviewer, rating, review_text, rdate)
-    cur.execute("insert into previews (?, ?, ?, ?, ?, ?);", data)
-    conn.commit()
+    db.cur.execute("insert into previews (?, ?, ?, ?, ?, ?);", data)
+    db.conn.commit()
 
 def list_preview(pID_choice):
     # Prints out the list of reviews of the selected product
-    cur.execute("select * from previews where pid = ?;", pID_choice)
-    rows = cur.fetchall()
+    db.cur.execute("select * from previews where pid = ?;", pID_choice)
+    rows = db.cur.fetchall()
     
     if rows: 
         # There are tuples in list
@@ -68,8 +67,8 @@ def list_products():
                     and s.pid = pr.pid
                     order by count(s.sid) desc;
                     """
-        cur.execute(product_listing)
-        rows = cur.fetchall()
+        db.cur.execute(product_listing)
+        rows = db.cur.fetchall()
         print("{:12}{:22}{:14}{:16}{:19}".format("Product ID", "Description", "Review Count", "Average Rating", "Active Sale Count"))
         print("{}".format("+" * 90))
         for row in rows:
