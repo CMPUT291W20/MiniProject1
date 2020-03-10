@@ -77,7 +77,7 @@ def active_sales(pID_choice):
                     """
                     # 2nd query: selecting the rprice of sales if there isn't a bid for the product
 
-    db.cur.execute(sale_listing, pID_choice, pID_choice) # query, placeholder, placeholder 
+    db.cur.execute(sale_listing, (pID_choice, pID_choice)) # query, placeholder, placeholder 
     rows = db.cur.fetchall()
     print("{:8}{:22}{:24}{:29}".format("Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
     print("{}".format("+" * 90))
@@ -89,25 +89,26 @@ def active_sales(pID_choice):
 def sale_search():
     # Prompts user to enter keywords to use to compare to descriptions in query
     # Prints out the results
-    search_input = input("Enter keywords to search for active sales: ")
+    search = input("Enter keywords to search for active sales: ")
+    search_input = "%" + search + "%"
     search_listing = """
                     (select s.sid s.descr, max(b.amount), datetime("s.edate") - datetime("now")
                     from sales s, bids b
                     where s.sid = b.sid
                     and (datetime("s.edate") - datetime("now")) > 0)
-                    and s.descr like '%?%'
+                    and s.descr like ?
                     union
                     (select s.sid s.descr, s.rprice, datetime("s.edate") - datetime("now")
                     from sales s
                     where (datetime("s.edate") - datetime("now")) > 0
-                    and s.descr like '%?%'
+                    and s.descr like ?
                     and not exists (select * from bids b, sales s 
                                     where b.sid = s.sid));
                     """
                     # 2nd query: selecting the rprice of sales if there isn't a bid for the product
                     # need to figure out how to order the results??
 
-    db.cur.execute(search_listing, search_input, search_input)
+    db.cur.execute(search_listing, (search_input, search_input,))
     rows = db.cur.fetchall()
     print("{:8}{:22}{:24}{:29}".format("Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
     print("{}".format("+" * 90))
