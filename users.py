@@ -8,8 +8,8 @@ def user_search():
     # Promps the user to enter a keyword for the user to search for in the name or city
     continueSearch = True
 
-    clear_screen()
     while continueSearch:
+        clear_screen()
         print("Enter in a keyword to find users by name or email or type '!back' to go back to main menu")
         search = input("Search: ")
         if search == "!back":

@@ -14,16 +14,18 @@ def start():
         print("Welcome to the MiniProject 1 Store")
         print("1: Login  2. Register  3: Exit application")
         select = input("Selection: ")
-
-        if (select == 1):
+        print(type(select))
+        print(select)
+        
+        if (select == "1"):
             user = login()
             if user != -1:
                 valid_entry = True
-        if (select == 2):
+        if (select == "2"):
             user = register()
             if user != -1:
                 valid_entry = True
-        if (select == 3):
+        if (select == "3"):
             close_program()
         else:
             clear_screen()

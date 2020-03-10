@@ -1,15 +1,14 @@
 db:
-	sqlite3 a2.db <a2-tables.sql
-	sqlite3 a2.db <a2-data1.sql
+	sqlite3 mp1.db <tables.sql
+	sqlite3 mp1.db <data.sql
 
 output:
-	sqlite3 a2.db <a2-tables.sql
-	sqlite3 a2.db <a2-data1.sql
-	sqlite3 a2.db <a2-queries.sql >a2-script.txt
+	sqlite3 mp1.db <tables.sql
+	sqlite3 mp1.db <data.sql
+	sqlite3 mp1.db <mp1-queries.sql >mp1-script.txt
 
 clean:
-	rm a2-script.txt
-	rm a2.db
+	rm mp1.db
 	if [-e mp1-script.txt]
 	then
 		rm mp1-script.txt

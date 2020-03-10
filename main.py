@@ -11,11 +11,12 @@ import random, string, re
 user = None
 
 def main():
-    path = "./" + sys.argv[-1]  # Get the last agument passed to the file name
-    if path == "main.py":
+    filename = sys.argv[-1]  # Get the last agument passed to the file name
+    if filename == "main.py":
         print("Error: No database passed to file")
         print("Exiting program...")
         sys.exit()
+    path = "./" + filename
     db.connect(path)
 
     isQuit = False
@@ -27,23 +28,23 @@ def main():
 
 
 def mainMenu():
-    clear_screen()
     logout = False
     while not logout:
+        clear_screen()
         print("Welcome to MiniProject 1 Store Main Menu")
         print("1. List products  2. Search for sales  3. Post a sale  4. Search for users  Logout: Logout of account  Exit: Exit Program")
         select = input("Select: ")
         if select == "logout":
             logout = True
-        elif select == "exit":
+        elif select.lower() == "exit":
             close_program()
-        elif select == 1:
+        elif select == "1":
             pass
-        elif select == 2:
+        elif select == "2":
             pass
-        elif select == 3:
+        elif select == "3":
             post_sale()
-        elif select == 4:
+        elif select == "4":
             user_search()
         else:
             print("Invalid selection made")
