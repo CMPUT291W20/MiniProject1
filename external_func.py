@@ -77,13 +77,29 @@ def get_sale_select(sID_choice):
     return row
 
 def print_active_sale(rows):
+    print(rows)
+    dt_list = rows[0][3].split()
+    dates = dt_list[0].split("-")
+    time = dt_list[1].split(":")
+    print(dt_list)
+    print(dates)
+    print(time)
     dashses = "-" * 90
     print(dashses)
     print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
     print(dashses)
     for i in range(len(rows)):
-        #print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
-        print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2]))
+        dt_list = rows[i][3].split()
+        dates = dt_list[0].split("-")
+        time = dt_list[1].split(":")
+        a = datetime(int(dates[0]),int(dates[1]),int(dates[2]), int(time[0]), int(time[1]))
+
+        dt_list = rows[i][4].split()
+        dates = dt_list[0].split("-")
+        time = dt_list[1].split(":")
+        b = datetime(int(dates[0]),int(dates[1]),int(dates[2]), int(time[0]), int(time[1]))
+        diff = a-b
+        print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}{difference:^29}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2], difference = diff))
 
     valid_index = False
     while not valid_index:

@@ -31,10 +31,11 @@ def active_sales(pID_choice):
     # List all active sales associated to the product, ordered based on the remaining time of the sale; includes the sale description, the maximum bid (if there is a bid on the item) or the reserved price (if there is no bid on the item), and the number of days, hours and minutes left until the sale expires
     clear_screen()
     sale_listing = """
-                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END
+                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END, s.edate, datetime('now')
                     from sales s left join 
                     (select sid, max(amount) as maxAmt from bids group by sid) b on b.sid = s.sid
                     where pid = "{pid}"
+                    and s.edate > datetime('now')
                     """
     sale_query = sale_listing.format(pid=pID_choice)
     db.cur.execute(sale_query)
