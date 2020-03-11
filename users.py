@@ -1,4 +1,4 @@
-from external_func import clear_screen, place_bid
+from external_func import clear_screen, place_bid, get_sale_select, print_active_sale
 import re, random
 import database as db
 from datetime import date
@@ -71,7 +71,7 @@ def user_select(list):
                     write_review(email)
                 elif select == "2":
                     valid_entry = True
-                    print_active_sales(email)
+                    user_active_sales(email)
                 elif select == "3":
                     valid_entry = True
                     print_reviews(email)
@@ -139,7 +139,7 @@ def print_reviews(email):
     input("Press Enter to go back")
 
 
-def print_active_sales(email):
+def user_active_sales(email):
     clear_screen()
     sale_listing = """
                     select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END
@@ -151,48 +151,16 @@ def print_active_sales(email):
     sale_query = sale_listing.format(e=email)
     db.cur.execute(sale_query)
     rows = db.cur.fetchall()
-    
-    dashses = "-" * 90
-    print(dashses)
-    print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
-    print(dashses)
-    for i in range(len(rows)):
-        #print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
-        print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2]))
-
-    valid_index = False
-    while not valid_index:
-        try:
-            index = int(input("Select a index for the sale: "))
-            if index <= len(rows)-1 and index >= 0:
-                valid_index = True
-            else:
-                print("Invalid index selected")
-        except ValueError:
-            print("Invalid index selected")
-    user_sale_select(rows[index][0])
+    if rows:
+        index = print_active_sale(rows)
+        user_sale_select(rows[index][0])
+    else:
+        print("User has no active sales")
+        input("Press enter to go back.")
 
 
 def user_sale_select(selected_sid):
-
-    selected_sale = """
-                    select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
-                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END
-                    from sales s left join 
-                    (select reviewee, count(*) as numReviews, avg(rating) as avgRate from reviews group by reviewee) r on r.reviewee = s.lister left join
-                    (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid
-                    where s.sid = "{sid}"
-                    """
-    selected_sale_query = selected_sale.format(sid=selected_sid)
-    db.cur.execute(selected_sale_query)
-    row = db.cur.fetchone()
-
-    dashes = "-" * 110
-    print(dashes)
-    print("{:<22s}{:<12s}{:<12s}{:<27s}{:<18s}{:<11s}{:<15s}".format("Lister", "Num Reviews", "Avg Rating", "Description", "End Date&Time", "Condition", "Highest Price"))
-    print(dashes)
-    print("{:<22s}{:^12f}{:^12f}{:<27s}{:<18s}{:<11s}{:<15f}".format(row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
-
+    row = get_sale_select(selected_sid)
 
     print("""
             What would you like to do with this selection?
@@ -204,7 +172,7 @@ def user_sale_select(selected_sid):
     if action == "1":
       place_bid(selected_sid, row[6])
     elif action == "2":
-        print_active_sales(row[0])
+        user_active_sales(row[0])
     elif action == "3":
         print_reviews(row[0])
     else: 

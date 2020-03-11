@@ -1,64 +1,14 @@
 # Need to figure out imports and how to get files to work together properly
 import sqlite3, random, string, re
 import database as db
-from external_func import clear_screen, place_bid
+from external_func import clear_screen, place_bid, get_sale_select, print_active_sale
 from datetime import datetime, date
-from users import print_reviews, print_active_sales
+from users import print_reviews, user_active_sales
 from user import User
 
 def sale_select(sID_choice):
     # From functionality 3 in spec 
-    selected_sale1 = """
-                    (select u.email, count(select reviewer from reviews, sales where reviewee = lister), avg(r.rating), s.descr, s.edate, s.cond, max(b.amount)
-                    from sales s, reviews r, bids b, users u
-                    where s.sid = ?
-                    and u.email = s.lister
-                    and u.email = r.reviewee
-                    and s.lister = r.reviewee
-                    and s.sid = b.sid)
-                    union
-                    (select u.email, count(select reviewer from reviews, sales where reviewee = lister), avg(r.rating), s.descr, s.edate, s.cond, s.rprice
-                    from sales s, reviews r, users u
-                    where s.sid = ?
-                    and u.email = s.lister
-                    and u.email = r.reviewee
-                    and s.lister = r.reviewee);
-                    """
-
-    selected_sale = """
-                    select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
-                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END, p.descr, previewCount, avgPrate
-                    from sales s left join 
-                    (select reviewee, count(*) as numReviews, avg(rating) as avgRate from reviews group by reviewee) r on r.reviewee = s.lister left join
-                    (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid left join
-                    (select pid, count(*) as previewCount, avg(rating) as avgPrate from previews group by pid) pr on pr.pid = s.pid left join
-                    products p on p.pid = s.pid
-                    where s.sid = "{sid}"
-                    """
-    selected_sale_query = selected_sale.format(sid=sID_choice)
-    db.cur.execute(selected_sale_query)
-    row = db.cur.fetchone()
-
-    if row[7] is None:
-        prodDescr = "N/A"
-    else:
-        prodDescr = row[7]
-    if row[8] is None:
-        numPr = "No Review yet"
-    else:
-        numPr = row[8]
-    if row[9] is None:
-        avgPr = "No Review yet"
-    else:
-        avgPr = row[9]
-
-    dashes = "-" * 180
-    print(dashes)
-    print("{:<22s}{:<12s}{:<12s}{:<27s}{:<18s}{:<11s}{:<15s}{:<20s}{:<21s}{:<20s}".format("Lister", "Num Reviews", "Avg Rating", "Description", "End Date&Time", "Condition", "Highest Price", 
-                                                                        "Product Description", "Num Product Reviews", "Avg Product Rating"))
-    print(dashes)
-    print("{:<22s}{:^12f}{:^12f}{:<27s}{:<18s}{:<11s}{:<15f}{:^20}{:^21}{:^20}".format(row[0],row[1],row[2],row[3],row[4],row[5],row[6], prodDescr, numPr, avgPr))
-
+    row = get_sale_select(sID_choice)
 
     print("""
             What would you like to do with this selection?
@@ -70,12 +20,11 @@ def sale_select(sID_choice):
     if action == "1":
         place_bid(sID_choice, row[6])
     elif action == "2":
-        print_active_sales(row[0])
+        user_active_sales(row[0])
     elif action == "3":
         print_reviews(row[0])
     else: 
         print("Invalid selection.") 
-
 
 
 def active_sales(pID_choice):
@@ -91,24 +40,7 @@ def active_sales(pID_choice):
     db.cur.execute(sale_query)
     rows = db.cur.fetchall()
 
-    dashses = "-" * 90
-    print(dashses)
-    print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
-    print(dashses)
-    for i in range(len(rows)):
-        #print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
-        print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2]))
-
-    valid_index = False
-    while not valid_index:
-        try:
-            index = int(input("Select a index for the sale: "))
-            if index <= len(rows)-1 and index >= 0:
-                valid_index = True
-            else:
-                print("Invalid index selected")
-        except ValueError:
-            print("Invalid index selected")
+    index = print_active_sale(rows)
     sale_select(rows[index][0])
 
 def sale_search():
