@@ -27,21 +27,48 @@ def sale_select(sID_choice):
 
     selected_sale = """
                     select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
-                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END
+                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END, p.descr, previewCount, avgPrate
                     from sales s left join 
                     (select reviewee, count(*) as numReviews, avg(rating) as avgRate from reviews group by reviewee) r on r.reviewee = s.lister left join
-                    (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid
+                    (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid left join
+                    (select pid, count(*) as previewCount, avg(rating) as avgPrate from previews group by pid) pr on pr.pid = s.pid left join
+                    products p on p.pid = s.pid
                     where s.sid = "{sid}"
                     """
     selected_sale_query = selected_sale.format(sid=sID_choice)
     db.cur.execute(selected_sale_query)
     row = db.cur.fetchone()
+    
+    print(row)
+    print(len(row))
 
-    dashes = "-" * 110
+    print(type(row[7]))
+    print(type(row[8]))
+    print(type(row[9]))
+
+    print(row[7])
+    print(row[8])
+    print(row[9])
+
+    if row[7] is None:
+        prodDescr = "N/A"
+    else:
+        prodDescr = row[7]
+    if row[8] is None:
+        numPr = "No Review yet"
+    else:
+        numPr = row[8]
+    if row[9] is None:
+        avgPr = "No Review yet"
+    else:
+        avgPr = row[9]
+
+    dashes = "-" * 180
     print(dashes)
-    print("{:<22s}{:<12s}{:<12s}{:<27s}{:<18s}{:<11s}{:<15s}".format("Lister", "Num Reviews", "Avg Rating", "Description", "End Date&Time", "Condition", "Highest Price"))
+    print("{:<22s}{:<12s}{:<12s}{:<27s}{:<18s}{:<11s}{:<15s}{:<20s}{:<21s}{:<20s}".format("Lister", "Num Reviews", "Avg Rating", "Description", "End Date&Time", "Condition", "Highest Price", 
+                                                                        "Product Description", "Num Product Reviews", "Avg Product Rating"))
     print(dashes)
-    print("{:<22s}{:^12f}{:^12f}{:<27s}{:<18s}{:<11s}{:<15f}".format(row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+    print("{:<22s}{:^12f}{:^12f}{:<27s}{:<18s}{:<11s}{:<15f}{:^20}{:^21}{:^20}".format(row[0],row[1],row[2],row[3],row[4],row[5],row[6], prodDescr, numPr, avgPr))
 
 
     print("""
