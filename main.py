@@ -26,6 +26,8 @@ def main():
 
 
 def mainMenu():
+    # Main menu of the program that prompts the user with the first initial options to choose from
+    
     logout = False
     while not logout:
         clear_screen()

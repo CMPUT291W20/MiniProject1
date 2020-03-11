@@ -7,7 +7,7 @@ from users import print_reviews, user_active_sales
 from user import User
 
 def sale_select(sID_choice):
-    # From functionality 3 in spec 
+    # Promps the user to choose an action for the sale that they have selected
     row = get_sale_select(sID_choice)
 
     print("""
@@ -70,9 +70,10 @@ def sale_search():
 
 
 def post_sale():
+    # Promps the user for data needed to post a sale
     clear_screen()
-
     print("Please enter the following information to post a sale:")
+
     valid_pid = False
     while not valid_pid:
         pid = input("Product ID (Optional, press Enter to skip): ")
@@ -112,6 +113,7 @@ def post_sale():
     sid = generateSID()
     db.cur.execute("INSERT INTO sales VALUES (?, ?, ?, ?, ?, ?, ?)", (sid, db.cur_user.get_email(), pid, edate, desc, cond, r_price))
     db.conn.commit()
+
 
 def get_datetime():
     # Promps the user to enter a correct date and time format for a sales end date and time

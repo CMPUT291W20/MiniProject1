@@ -140,6 +140,8 @@ def print_reviews(email):
 
 
 def user_active_sales(email):
+    # Takes in the email of a user for get their currently active sales
+
     clear_screen()
     sale_listing = """
                     select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN (CASE WHEN s.rprice IS NULL THEN 0 ELSE s.rprice END) ELSE maxAmt END, s.edate, datetime('now')
@@ -160,7 +162,9 @@ def user_active_sales(email):
 
 
 def user_sale_select(selected_sid):
-    row = get_sale_select(selected_sid)
+    # Promps the user to choose an action for the sale that they have selected
+
+    row = get_sale_select(selected_sid)  # Returns a more detailed sale data
 
     print("""
             What would you like to do with this selection?

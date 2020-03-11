@@ -4,18 +4,25 @@ import random
 from datetime import datetime
 
 def clear_screen():
+    # Clears the terminal screen
+
     if sys.platform == 'win32':
         os.system("cls")
     else:
         os.system("clear")
 
 def close_program():
+    # Displays a goodbye message and closes the program
+
     clear_screen()
     print("Thank you for shopping with us")
     print("Exiting Program....")
     sys.exit()
 
 def place_bid(sID_choice, maxAmt):
+    # Takes in a selected sale ID and the current max amount for that sale
+    # Promps the user to enter in amount greater that the current maxAmt
+
     print("Placing a bid for {}:".format(sID_choice))
 
     valid_input =  False
@@ -48,6 +55,8 @@ def place_bid(sID_choice, maxAmt):
                 print("Invalid ammount entered")
 
 def get_sale_select(sID_choice):
+    # Takes in the a string sale ID to retrieve more data regarding that sale
+    # Returns a row that contains the detailed sale information
 
     selected_sale = """
                     select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
@@ -87,6 +96,10 @@ def get_sale_select(sID_choice):
     return row
 
 def print_active_sale(rows):
+    # Takes in a list of tuples of active sale data to be formated and printed to the screen
+    # After the print, prompt the user to select an index for futher action
+    #   Return: index
+
     dashses = "-" * 90
     print(dashses)
     print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
