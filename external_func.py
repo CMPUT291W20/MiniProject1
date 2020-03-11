@@ -18,25 +18,34 @@ def close_program():
 def place_bid(sID_choice, maxAmt):
     print("Placing a bid for {}:".format(sID_choice))
 
-    amount = int(input("Enter a bid amount: "))
-    if amount <= maxAmt:
-        print("Bid is not larger then the current highest price")
-    else:
-        valid_bid = False
-        while not valid_bid:
-            bID = random.randint(1,999999999)
-            db.cur.execute("select * from bids where bid = ?", (str(bID),))
-            returned = db.cur.fetchone()
-            if not returned:
-                valid_bid = True
+    valid_input =  False
+    while not valid_input:
+        print("Enter a bid ammount or type back.")
+        amount = input("Amount: ")
+        if amount == "back":
+            valid_input = True
+        else:
+            try:
+                if int(amount) <= maxAmt:
+                    print("Bid is not larger then the current highest price")
+                else:
+                    valid_bid = False
+                    while not valid_bid:
+                        bID = random.randint(1,999999999)
+                        db.cur.execute("select * from bids where bid = ?", (str(bID),))
+                        returned = db.cur.fetchone()
+                        if not returned:
+                            valid_bid = True
 
-        bidder = db.cur_user.get_email()
-        now = datetime.now()
-        bdate = now.strftime("%Y-%m-%d %H:%M")
+                    bidder = db.cur_user.get_email()
+                    now = datetime.now()
+                    bdate = now.strftime("%Y-%m-%d %H:%M")
 
-        data = (bID, bidder, sID_choice, bdate, amount)
-        db.cur.execute("INSERT INTO bids VALUES (?, ?, ?, ?, ?)", data)
-        db.conn.commit()
+                    data = (bID, bidder, sID_choice, bdate, int(amount))
+                    db.cur.execute("INSERT INTO bids VALUES (?, ?, ?, ?, ?)", data)
+                    db.conn.commit()
+            except ValueError:
+                print("Invalid ammount entered")
 
 def get_sale_select(sID_choice):
 
@@ -54,7 +63,6 @@ def get_sale_select(sID_choice):
     selected_sale_query = selected_sale.format(sid=sID_choice)
     db.cur.execute(selected_sale_query)
     row = db.cur.fetchone()
-    print(row)
     
     if row[7] is None:
         prodDescr = "N/A"
