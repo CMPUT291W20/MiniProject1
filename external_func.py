@@ -1,7 +1,7 @@
 import os, sys
 import database as db
 import random
-from datetime import date
+from datetime import datetime
 
 def clear_screen():
     if sys.platform == 'win32':
@@ -31,8 +31,8 @@ def place_bid(sID_choice, maxAmt):
                 valid_bid = True
 
         bidder = db.cur_user.get_email()
-        today = date.today()
-        bdate = today.strftime("%Y-%m-%d")
+        now = datetime.now()
+        bdate = now.strftime("%Y-%m-%d %H:%M")
 
         data = (bID, bidder, sID_choice, bdate, amount)
         db.cur.execute("INSERT INTO bids VALUES (?, ?, ?, ?, ?)", data)

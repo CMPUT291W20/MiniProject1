@@ -105,12 +105,12 @@ def sale_search():
                     from sales s, bids b
                     where s.sid = b.sid
                     and (datetime("s.edate") - datetime("now")) > 0)
-                    and s.descr like {pid_1}
+                    and s.descr like "{pid_1}"
                     union
                     (select s.sid s.descr, s.rprice, datetime("s.edate") - datetime("now")
                     from sales s
                     where (datetime("s.edate") - datetime("now")) > 0
-                    and s.descr like {pid_2}
+                    and s.descr like "{pid_2}"
                     and not exists (select * from bids b, sales s 
                                     where b.sid = s.sid));
                     """
@@ -125,10 +125,6 @@ def sale_search():
         print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
     sale_select()
 
-def print_sales(list):
-    # Prints all the sales that are posted by the user
-    # Takes in the list of tuples to be printed
-    pass
 
 def post_sale():
     clear_screen()
