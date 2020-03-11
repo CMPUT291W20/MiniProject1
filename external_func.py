@@ -42,7 +42,8 @@ def get_sale_select(sID_choice):
 
     selected_sale = """
                     select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
-                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END, p.descr, previewCount, avgPrate
+                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN (CASE WHEN s.rprice IS NULL THEN 0 ELSE s.rprice END) ELSE maxBid END, 
+                        p.descr, previewCount, avgPrate
                     from sales s left join 
                     (select reviewee, count(*) as numReviews, avg(rating) as avgRate from reviews group by reviewee) r on r.reviewee = s.lister left join
                     (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid left join
@@ -53,7 +54,8 @@ def get_sale_select(sID_choice):
     selected_sale_query = selected_sale.format(sid=sID_choice)
     db.cur.execute(selected_sale_query)
     row = db.cur.fetchone()
-
+    print(row)
+    
     if row[7] is None:
         prodDescr = "N/A"
     else:

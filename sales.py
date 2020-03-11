@@ -31,7 +31,7 @@ def active_sales(pID_choice):
     # List all active sales associated to the product, ordered based on the remaining time of the sale; includes the sale description, the maximum bid (if there is a bid on the item) or the reserved price (if there is no bid on the item), and the number of days, hours and minutes left until the sale expires
     clear_screen()
     sale_listing = """
-                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END, s.edate, datetime('now')
+                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN (CASE WHEN s.rprice IS NULL THEN 0 ELSE s.rprice END) ELSE maxAmt END, s.edate, datetime('now')
                     from sales s left join 
                     (select sid, max(amount) as maxAmt from bids group by sid) b on b.sid = s.sid
                     where pid = "{pid}"
@@ -77,10 +77,21 @@ def sale_search():
 
 def post_sale():
     clear_screen()
+
     print("Please enter the following information to post a sale:")
-    pid = input("Product ID (Optional, press Enter to skip): ")
-    if pid == "":
-        pid = None
+    valid_pid = False
+    while not valid_pid:
+        pid = input("Product ID (Optional, press Enter to skip): ")
+        if pid == "":
+            pid = None
+            valid_pid = True
+        else:
+            db.cur.execute("SELECT * FROM products WHERE pid=?", (pid,))
+            results = db.cur.fetchall()
+            if results:
+                valid_input = True
+            else:
+                print("The pid: " + pid + "Does not exist")
 
     edate = get_datetime()
 
@@ -105,23 +116,37 @@ def post_sale():
         r_price = None
 
     sid = generateSID()
-    db.cur.execute("INSERT INTO sales VALUES (?, ?, ?, ?, ?, ?)", (sid, db.cur_user.get_email(), edate, desc, cond, r_price))
+    db.cur.execute("INSERT INTO sales VALUES (?, ?, ?, ?, ?, ?, ?)", (sid, db.cur_user.get_email(), pid, edate, desc, cond, r_price))
+    db.conn.commit()
 
 def get_datetime():
     # Promps the user to enter a correct date and time format for a sales end date and time
     now = datetime.now()
     now_datetime = now.strftime("%Y-%m-%d %H:%M")
 
-    valid_input = False
-    while not valid_input:
-        date = input("End date in format yyyy-mm-dd ")
-        if len(date) == 10:
-            pass
+    future_date = False
+    while not future_date:
+        valid_input = False
+        while not valid_input:
+            date = input("End date in format yyyy-mm-dd ")
+            try:
+                datetime.strptime(date, "%Y-%m-%d")
+                valid_input = True
+            except:
+                print("Incorrect date format")
+        valid_input = False
+        while not valid_input:
+            time = input("End time in format HH:MM ")
+            try:
+                datetime.strptime(time, "%H:%M")
+                valid_input = True
+            except:
+                print("Incorrect time format")
+        edate = date + " " + time
+        if edate > now_datetime:
+            future_date = True
         else:
-            print("Error: Invalid format")
-    
-    time = input("End time in format HH:MM ")
-    edate = date + " " + time
+            print("date needs tp be in the future")
     return edate
 
 
