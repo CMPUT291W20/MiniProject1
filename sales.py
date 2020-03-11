@@ -38,17 +38,6 @@ def sale_select(sID_choice):
     selected_sale_query = selected_sale.format(sid=sID_choice)
     db.cur.execute(selected_sale_query)
     row = db.cur.fetchone()
-    
-    print(row)
-    print(len(row))
-
-    print(type(row[7]))
-    print(type(row[8]))
-    print(type(row[9]))
-
-    print(row[7])
-    print(row[8])
-    print(row[9])
 
     if row[7] is None:
         prodDescr = "N/A"
