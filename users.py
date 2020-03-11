@@ -142,7 +142,7 @@ def print_reviews(email):
 def user_active_sales(email):
     clear_screen()
     sale_listing = """
-                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END
+                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END, s.edate, datetime('now')
                     from sales s left join 
                     (select sid, max(amount) as maxAmt from bids group by sid) b on b.sid = s.sid
                     where s.lister = "{e}"

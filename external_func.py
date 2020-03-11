@@ -77,13 +77,6 @@ def get_sale_select(sID_choice):
     return row
 
 def print_active_sale(rows):
-    print(rows)
-    dt_list = rows[0][3].split()
-    dates = dt_list[0].split("-")
-    time = dt_list[1].split(":")
-    print(dt_list)
-    print(dates)
-    print(time)
     dashses = "-" * 90
     print(dashses)
     print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
@@ -98,7 +91,7 @@ def print_active_sale(rows):
         dates = dt_list[0].split("-")
         time = dt_list[1].split(":")
         b = datetime(int(dates[0]),int(dates[1]),int(dates[2]), int(time[0]), int(time[1]))
-        diff = a-b
+        diff = str(a-b)
         print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}{difference:^29}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2], difference = diff))
 
     valid_index = False
