@@ -8,8 +8,10 @@ def start():
     # return:
     #   user: upon successful login or register
     #   -2: upon selection of quit
-    valid_entry = False
 
+    clear_screen()
+    
+    valid_entry = False
     while not valid_entry:
         print("Welcome to the MiniProject 1 Store")
         print("1: Login  2. Register  3: Exit application")
