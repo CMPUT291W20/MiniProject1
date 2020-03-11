@@ -89,9 +89,9 @@ def post_sale():
             db.cur.execute("SELECT * FROM products WHERE pid=?", (pid,))
             results = db.cur.fetchall()
             if results:
-                valid_input = True
+                valid_pid = True
             else:
-                print("The pid: " + pid + "Does not exist")
+                print("The pid: " + pid + " Does not exist")
 
     edate = get_datetime()
 
