@@ -1,4 +1,7 @@
 import os, sys
+import database as db
+import random
+from datetime import date
 
 def clear_screen():
     if sys.platform == 'win32':
@@ -11,3 +14,26 @@ def close_program():
     print("Thank you for shopping with us")
     print("Exiting Program....")
     sys.exit()
+
+def place_bid(sID_choice, maxAmt):
+    print("Placing a bid for {}:".format(sID_choice))
+
+    amount = int(input("Enter a bid amount: "))
+    if amount <= maxAmt:
+        print("Bid is not larger then the current highest price")
+    else:
+        valid_bid = False
+        while not valid_bid:
+            bID = random.randint(1,999999999)
+            db.cur.execute("select * from bids where bid = ?", (str(bID),))
+            returned = db.cur.fetchone()
+            if not returned:
+                valid_bid = True
+
+        bidder = db.cur_user.get_email()
+        today = date.today()
+        bdate = today.strftime("%Y-%m-%d")
+
+        data = (bID, bidder, sID_choice, bdate, amount)
+        db.cur.execute("INSERT INTO bids VALUES (?, ?, ?, ?, ?)", data)
+        db.conn.commit()

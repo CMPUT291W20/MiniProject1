@@ -37,7 +37,7 @@ def mainMenu():
         elif select.lower() == "exit":
             close_program()
         elif select == "1":
-            pass
+            list_products()
         elif select == "2":
             sale_search()
         elif select == "3":

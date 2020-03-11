@@ -49,10 +49,12 @@ def login():
         pwd = input("Password: ")
 
         user_data = getUser(email)
+        print(user_data)
         if user_data:
             # There is data in the tuple
             if pwd == user_data[2]:
                 login_user = User(user_data[0], user_data[1], user_data[3], user_data[4])
+                db.cur_user = login_user
                 valid_login = True
             else:
                 clear_screen()

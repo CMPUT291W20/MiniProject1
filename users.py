@@ -1,7 +1,6 @@
-from external_func import clear_screen
-import re
+from external_func import clear_screen, place_bid
+import re, random
 import database as db
-from sales import print_sales
 from datetime import date
 
 def user_search():
@@ -59,21 +58,20 @@ def user_select(list):
                 valid_index = True
             else:
                 print("Error: Invalid Index selected")
+
         if not back:
             print("Please select an operation to")
             print("1. Write a review  2. List all user's active sales  3. List all reviews on user")
             valid_entry = False
             while not valid_entry:
-                select = int(input("Selection: "))
-                print(type(select))
-                print(select)
+                select = input("Selection: ")
                 email = list[int(index)][0]  # User of the email selected
                 if select == "1":
                     valid_entry = True
                     write_review(email)
                 elif select == "2":
                     valid_entry = True
-                    print_sales(email)
+                    print_active_sales(email)
                 elif select == "3":
                     valid_entry = True
                     print_reviews(email)
@@ -116,7 +114,7 @@ def write_review(email):
 
         today = date.today()
         r_date = today.strftime("%Y-%m-%d")
-        db.cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (email, email, r_rating, r_text, r_date))
+        db.cur.execute("INSERT INTO reviews VALUES (?, ?, ?, ?, ?)", (db.cur_user.get_email(), email, r_rating, r_text, r_date))
         db.conn.commit()
 
 
@@ -139,3 +137,75 @@ def print_reviews(email):
         # There are no tuples in the list
         print("This user has no reviews")
     input("Press Enter to go back")
+
+
+def print_active_sales(email):
+    clear_screen()
+    sale_listing = """
+                    select s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN s.rprice ELSE maxAmt END
+                    from sales s left join 
+                    (select sid, max(amount) as maxAmt from bids group by sid) b on b.sid = s.sid
+                    where s.lister = "{e}"
+                    and s.edate > datetime('now')
+                    """
+    sale_query = sale_listing.format(e=email)
+    db.cur.execute(sale_query)
+    rows = db.cur.fetchall()
+    
+    dashses = "-" * 90
+    print(dashses)
+    print("{:<7}{:<9}{:<22}{:<25}{:<29}".format("Index","Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
+    print(dashses)
+    for i in range(len(rows)):
+        #print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
+        print("{:^7}{:^9s}{description:<22}{maxbid_rprice:^25}".format(i, rows[i][0], description = rows[i][1], maxbid_rprice = rows[i][2]))
+
+    valid_index = False
+    while not valid_index:
+        try:
+            index = int(input("Select a index for the sale: "))
+            if index <= len(rows)-1 and index >= 0:
+                valid_index = True
+            else:
+                print("Invalid index selected")
+        except ValueError:
+            print("Invalid index selected")
+    user_sale_select(rows[index][0])
+
+
+def user_sale_select(selected_sid):
+
+    selected_sale = """
+                    select s.lister, CASE WHEN numReviews IS NULL THEN 0 ELSE numReviews END, CASE WHEN avgRate IS NULL THEN 0 ELSE avgRate END,
+                        s.descr, s.edate, s.cond, CASE WHEN maxBid IS NULL THEN s.rprice ELSE maxBid END
+                    from sales s left join 
+                    (select reviewee, count(*) as numReviews, avg(rating) as avgRate from reviews group by reviewee) r on r.reviewee = s.lister left join
+                    (select sid, max(amount) as maxBid from bids group by sid) b on b.sid = s.sid
+                    where s.sid = "{sid}"
+                    """
+    selected_sale_query = selected_sale.format(sid=selected_sid)
+    db.cur.execute(selected_sale_query)
+    row = db.cur.fetchone()
+
+    dashes = "-" * 110
+    print(dashes)
+    print("{:<22s}{:<12s}{:<12s}{:<27s}{:<18s}{:<11s}{:<15s}".format("Lister", "Num Reviews", "Avg Rating", "Description", "End Date&Time", "Condition", "Highest Price"))
+    print(dashes)
+    print("{:<22s}{:^12f}{:^12f}{:<27s}{:<18s}{:<11s}{:<15f}".format(row[0],row[1],row[2],row[3],row[4],row[5],row[6]))
+
+
+    print("""
+            What would you like to do with this selection?
+            1. Place bid on the selected sale
+            2. List all active sales by seller
+            3. List reviewes of the seller
+            """)
+    action = input("Select an action (1, 2, or 3): ")
+    if action == "1":
+      place_bid(selected_sid, row[6])
+    elif action == "2":
+        print_active_sales(row[0])
+    elif action == "3":
+        print_reviews(row[0])
+    else: 
+        print("Invalid selection.") 
