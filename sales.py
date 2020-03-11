@@ -16,15 +16,19 @@ def sale_select(sID_choice):
             2. List all active sales by seller
             3. List reviewes of the seller
             """)
-    action = input("Select an action (1, 2, or 3): ")
-    if action == "1":
-        place_bid(sID_choice, row[6])
-    elif action == "2":
-        user_active_sales(row[0])
-    elif action == "3":
-        print_reviews(row[0])
-    else: 
-        print("Invalid selection.") 
+    valid_input =  False
+    while not valid_input:
+        action = input("Select an action (1, 2, or 3): ")
+        valid_input = True
+        if action == "1":
+            place_bid(sID_choice, row[6])
+        elif action == "2":
+            user_active_sales(row[0])
+        elif action == "3":
+            print_reviews(row[0])
+        else: 
+            valid_input = False
+            print("Invalid selection.") 
 
 
 def active_sales(pID_choice):
