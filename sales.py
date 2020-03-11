@@ -50,29 +50,19 @@ def sale_search():
     search = input("Enter keywords to search for active sales: ")
     search_input = "%" + search + "%"
     search_listing = """
-                    (select s.sid s.descr, max(b.amount), datetime("s.edate") - datetime("now")
-                    from sales s, bids b
-                    where s.sid = b.sid
-                    and (datetime("s.edate") - datetime("now")) > 0)
-                    and s.descr like "{pid_1}"
-                    union
-                    (select s.sid s.descr, s.rprice, datetime("s.edate") - datetime("now")
-                    from sales s
-                    where (datetime("s.edate") - datetime("now")) > 0
-                    and s.descr like "{pid_2}"
-                    and not exists (select * from bids b, sales s 
-                                    where b.sid = s.sid));
-                    """
-                    # 2nd query: selecting the rprice of sales if there isn't a bid for the product
-                    # need to figure out how to order the results??
-    search_query = search_listing.format(pid_1=search_input, pid_2=search_input)
+                select distinct s.sid, s.descr, CASE WHEN maxAmt IS NULL THEN (CASE WHEN s.rprice IS NULL THEN 0 ELSE s.rprice END) ELSE maxAmt END, s.edate, datetime('now')
+                from sales s left join 
+                (select sid, max(amount) as maxAmt from bids group by sid) b on b.sid = s.sid left join products p on p.pid = s.pid
+                where s.descr like "{search_1}" or p.descr like "{search_2}"
+                and s.edate > datetime('now')
+                """
+
+    search_query = search_listing.format(search_1=search_input, search_2=search_input)
     db.cur.execute(search_query)
     rows = db.cur.fetchall()
-    print("{:8}{:22}{:24}{:29}".format("Sale ID","Sale Description", "Max. Bid/Reserved Price", "Time Left Before Sale Expires"))
-    print("{}".format("+" * 90))
-    for row in rows:
-        print("{sid:8}{description:22}{maxbid_rprice:24}{time_left}".format(sid = row[0], description = row[1], maxbid_rprice = row[2], time_left = row[3]))
-    sale_select()
+
+    index = print_active_sale(rows)
+    sale_select(rows[index][0])
 
 
 def post_sale():

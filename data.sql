@@ -22,7 +22,7 @@ insert into products values ('p02', 'Product_2');
 insert into products values ('p03', 'Product_3');
 insert into products values ('p04', 'Product_4');
 insert into products values ('p05', 'Product_5');
-insert into products values ('p06', 'Product_6');
+insert into products values ('p06', 'sell ps4');
 insert into products values ('p07', 'Product_7');
 insert into products values ('p08', 'Product_8');
 insert into products values ('p09', 'Product_9');
@@ -43,7 +43,7 @@ insert into sales values ('s12','email_1@gmail.com','p06','2020-01-17','new','Ex
 insert into sales values ('s14','email_14@gmail.com','p12','2020-05-20 20:20','sell product 12','new', 125);
 insert into sales values ('s15','email_10@gmail.com','p12','2020-05-25 04:30','sell product 12 x2','new', 100);
 insert into sales values ('s18','email_1@gmail.com','p10','2020-05-20 05:20','sell product 10', 'new,', 120);
-insert into sales values ('s20','email_5@gmail.com','p06','2020-08-08 06:10','sell product 06', 'new', 120);
+insert into sales values ('s20','email_5@gmail.com','p06','2020-08-08 06:10','selling ps4 cool', 'new', 120);
 
     -- dates in the near future
 
