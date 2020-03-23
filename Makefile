@@ -1,10 +1,10 @@
 db:
 	sqlite3 mp1.db <tables.sql
-	sqlite3 mp1.db <data.sql
+	sqlite3 mp1.db <prj-data.sql
 
 output:
 	sqlite3 mp1.db <tables.sql
-	sqlite3 mp1.db <data.sql
+	sqlite3 mp1.db <prj-data.sql
 	sqlite3 mp1.db <mp1_queries.sql >mp1-script.txt
 
 clean:

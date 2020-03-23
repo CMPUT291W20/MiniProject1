@@ -1,0 +1,37 @@
+Group members
+  1. Helen Aquino (haquino)
+  2. Daylen Pacheco (dpacheco)
+
+For each section in the marking, test your project and mark it as 'pass', 'partial pass', 'fail'.
+
+Self-test result:
+
+1a. pass
+1b. pass
+1c. pass
+1d. pass
+
+2a. pass (products with the same number of active sales are lsited in a different order than shown in expected output table, but still in order of # of active sales) 
+2b. pass
+2c. pass
+2d. partial pass (6/7; list not ordered correctly, since we had minutes listed)
+2e. pass
+
+3a. pass? (continuous loop when valid bid amount is placed, but bid is correctly inserted when checked in bids table/search result)
+3b. pass
+3c. pass
+3d. pass
+
+4a. fail (since there were no indices, I had to restart the program to continue the testing)
+4b. fail
+
+5a. pass
+5b. pass
+5c. partial pass (4/5; reserved price set to 0 instead of being left as NULL)
+
+6a. partial pass (3/4; gender column shown)
+6b. pass
+6c. pass
+6d. pass
+
+7. pass
